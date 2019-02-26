@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Weather layer</title>
+        <style>
+            html, body{
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                width: 700px;
+                height: 300px;
+            }
+        </style>
+        <!-- Bootstrap core CSS -->
+        <link th:href="@{/bootstrap/vendor/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+        <!-- Custom fonts for this template -->
+        <link th:href="@{/bootstrap/vendor/fontawesome-free/css/all.min.css}" rel="stylesheet">
+        <link th:href="@{/bootstrap/vendor/simple-line-icons/css/simple-line-icons.css}" rel="stylesheet" type="text/css">
+        <link th:href="@{//fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic}" rel="stylesheet" type="text/css">
+        <!-- Custom styles for this template -->
+        <link th:href="@{/bootstrap/css/landing-page.css}" rel="stylesheet">
+        <link th:href="@{//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css}" rel="stylesheet">
+
+        <!-- Bootstrap core JavaScript -->
+        <script th:src="@{//code.jquery.com/jquery-1.12.4.js}"></script>
+        <script th:src="@{//code.jquery.com/ui/1.11.4/jquery-ui.min.js}"></script>
+        <script th:src="@{/bootstrap/vendor/bootstrap/js/bootstrap.bundle.min.js}"></script>
+
+        <script th:src="@{//www.gstatic.com/charts/loader.js}" type="text/javascript"></script>
+        <script th:src="@{//maps.googleapis.com/maps/api/js(key=${googleMapApiKey})}" type="text/javascript"></script>
+        <script th:inline="javascript" type="text/javascript">
+        /*<![CDATA[*/
+            var geocoder;
+            var map;
+            var geoJSON;
+            var request;
+            var gettingData = false;
+            var openWeatherApiKey =  /*[[${openWeatherApiKey}]]*/;
+            var foreCastWeatherDTO = /*[[${foreCastWeatherDTO}]]*/;
+
+            function initialize() {
+                geocoder = new google.maps.Geocoder();
+                var mapOptions = {
+                    zoom: 8,
+           /*         127.14
+                        (index):86 37.44*/
+                    center: new google.maps.LatLng(foreCastWeatherDTO.weatherDTO.coord.lat,foreCastWeatherDTO.weatherDTO.coord.lon)
+                };
+          /*      map = new google.maps.Map(document.getElementById('map-canvas'),
+                    mapOptions);*/
+                map = new google.maps.Map(document.getElementById('map'), mapOptions);
+                // Add interaction listeners to make weather requests
+                google.maps.event.addListener(map, 'idle', checkIfDataRequested);
+                // Sets up and populates the info window with details
+                map.data.addListener('click', function(event) {
+                    infowindow.setContent(
+                        "<img src=" + event.feature.getProperty("icon") + ">"
+                        + "<br /><strong>" + event.feature.getProperty("city") + "</strong>"
+                        + "<br />" + event.feature.getProperty("temperature") + "&deg;C"
+                        + "<br />" + event.feature.getProperty("weather")
+                    );
+                    infowindow.setOptions({
+                        position:{
+                            lat: event.latLng.lat(),
+                            lng: event.latLng.lng()
+                        },
+                        pixelOffset: {
+                            width: 0,
+                            height: -15
+                        }
+                    });
+                    infowindow.open(map);
+                });
+            }
+            var checkIfDataRequested = function() {
+                // Stop extra requests being sent
+                while (gettingData === true) {
+                    request.abort();
+                    gettingData = false;
+                }
+                getCoords();
+            };
+            // Get the coordinates from the Map bounds
+            var getCoords = function() {
+                var bounds = map.getBounds();
+                var NE = bounds.getNorthEast();
+                var SW = bounds.getSouthWest();
+                getWeather(NE.lat(), NE.lng(), SW.lat(), SW.lng());
+            };
+            // Make the weather request
+            var getWeather = function(northLat, eastLng, southLat, westLng) {
+                gettingData = true;
+                var requestString = "http://api.openweathermap.org/data/2.5/box/city?bbox="
+                    + westLng + "," + northLat + "," //left top
+                    + eastLng + "," + southLat + "," //right bottom
+                    + map.getZoom()
+                    + "&cluster=yes&format=json"
+                    + "&APPID=" + openWeatherApiKey;
+                request = new XMLHttpRequest();
+                request.onload = proccessResults;
+                request.open("get", requestString, true);
+                request.send();
+            };
+            // Take the JSON results and proccess them
+            var proccessResults = function() {
+                console.log(this);
+                var results = JSON.parse(this.responseText);
+                console.log(results);
+                console.log(results.list);
+                if (results.list.length > 0) {
+                    resetData();
+                    for (var i = 0; i < results.list.length; i++) {
+                        geoJSON.features.push(jsonToGeoJson(results.list[i]));
+                    }
+                    drawIcons(geoJSON);
+                }
+            };
+            var infowindow = new google.maps.InfoWindow();
+            // For each result that comes back, convert the data to geoJSON
+            var jsonToGeoJson = function (weatherItem) {
+                var feature = {
+                    type: "Feature",
+                    properties: {
+                        city: weatherItem.name,
+                        weather: weatherItem.weather[0].main,
+                        temperature: weatherItem.main.temp,
+                        min: weatherItem.main.temp_min,
+                        max: weatherItem.main.temp_max,
+                        humidity: weatherItem.main.humidity,
+                        pressure: weatherItem.main.pressure,
+                        windSpeed: weatherItem.wind.speed,
+                        windDegrees: weatherItem.wind.deg,
+                        windGust: weatherItem.wind.gust,
+                        icon: "http://openweathermap.org/img/w/"
+                            + weatherItem.weather[0].icon  + ".png",
+                        coordinates: [weatherItem.coord.Lon, weatherItem.coord.Lat]
+                    },
+                    geometry: {
+                        type: "Point",
+                        coordinates: [weatherItem.coord.Lon, weatherItem.coord.Lat]
+                    }
+                };
+                // Set the custom marker icon
+                map.data.setStyle(function(feature) {
+                    return {
+                        icon: {
+                            url: feature.getProperty('icon'),
+                            anchor: new google.maps.Point(25, 25)
+                        }
+                    };
+                });
+                // returns object
+                return feature;
+            };
+            // Add the markers to the map
+            var drawIcons = function (weather) {
+                map.data.addGeoJson(geoJSON);
+                // Set the flag to finished
+                gettingData = false;
+            };
+            // Clear data layer and geoJSON
+            var resetData = function () {
+                geoJSON = {
+                    type: "FeatureCollection",
+                    features: []
+                };
+                map.data.forEach(function(feature) {
+                    map.data.remove(feature);
+                });
+            };
+                google.maps.event.addDomListener(window, 'load', initialize);
+        /*]]>*/
+        </script>
+    </head>
+</html>
+
+

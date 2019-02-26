@@ -5,6 +5,12 @@
     <title>Title</title>
 </head>
 <body>
-<p th:text="${ErrorMsg}"></p>
+    <p th:text="${ErrorMsg}"></p>
+    <button th:onclick="'location.href ='+@{/}" type="button">return</button>
+
+<!--
+    th:onclick="'window.location.href = \'' + @{/deviceevent/list/{id}(id=${deviceEvent.id})} + '\''"
+-->
+
 </body>
 </html>

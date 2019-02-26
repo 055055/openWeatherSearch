@@ -29,7 +29,9 @@ public class MainController {
         model.addAttribute("foreCastWeatherDTO",foreCastWeatherDTO);
         model.addAttribute("googleMapApiKey",googleMapApiKey);
         model.addAttribute("openWeatherApiKey",openWeatherApiKey);
+/*
         System.out.println(foreCastWeatherDTO.getClass().getName());
+*/
         return "index.html";
     }
 
@@ -37,6 +39,11 @@ public class MainController {
     public String search(@PathVariable String cityName, ModelMap model) throws Exception{
         String upperCityName= cityName.toUpperCase();
         ForeCastWeatherDTO foreCastWeatherDTO = mainService.getLocationWeather(null, null, upperCityName);
+
+        model.addAttribute("foreCastWeatherDTO",foreCastWeatherDTO);
+        model.addAttribute("googleMapApiKey",googleMapApiKey);
+        model.addAttribute("openWeatherApiKey",openWeatherApiKey);
+
         System.out.println(foreCastWeatherDTO.getClass().getName());
         return "index.html";
     }
