@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1,minimum-scale=1, maximum-scale=2, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>OpenWeatherSearch</title>
+    <div th:include="openWeatherGoogleMap.html"></div>
+  </head>
+  <body>
+  <script type="text/javascript" th:inline="javascript">
+    $(function() {
+        var foreCastWeatherDTO = /*[[${foreCastWeatherDTO}]]*/;
+        console.log(foreCastWeatherDTO);
+
+        $('ul.tabs li').click(function(){
+            var tab_id = $(this).attr('data-tab');
+            $('ul.tabs li').removeClass('current');
+            $('.tab-content').removeClass('current');
+
+            $(this).addClass('current');
+            $("#"+tab_id).addClass('current');
+        })
+
+
+        $('#searchCity').on("click", function () {
+        location.href = $('#cityName').val();
+      })
+
+        var availableTags = new Array();
+
+        for(var i=0 ; i < foreCastWeatherDTO.RecommendCity.length ; i++){
+            availableTags[i] = foreCastWeatherDTO.RecommendCity[i];
+        }
+
+        $('#cityName').autocomplete({
+            source: availableTags
+        });
+
+        google.charts.load('current', {packages: ['corechart', 'line']});
+        google.charts.setOnLoadCallback(drawBasic);
+
+        function drawBasic() {
+            var data = new google.visualization.DataTable();
+
+            //그래프에 표시할 컬럼 추가
+            data.addColumn('string', 'Time');
+            data.addColumn('number','Temperature');
+
+           for (var i = 0; i <= 9; i++) { //랜덤 데이터 생성
+                dataRow =[foreCastWeatherDTO.list[i].convertDt,foreCastWeatherDTO.list[i].main.temp];
+                data.addRow(dataRow);
+            }
+            var options = {
+                pointSize: 5,
+                hAxis: {
+                },
+                width: 700,
+                height:300,
+                vAxis: {
+                    format:'###°C'
+                }
+            };
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(data, options);
+        }
+
+    });
+  </script>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-light bg-light static-top">
+      <div class="container">
+        <a class="navbar-brand" th:href="@{/}">Open Weather Search</a>
+      </div>
+    </nav>
+
+    <header class="masthead text-white text-center">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
+              <div class="form-row">
+                <div class="col-12 col-md-9 mb-2 mb-md-0">
+                  <input id="cityName" type="text" class="form-control form-control-lg" placeholder="Enter your city name...">
+                </div>
+                <div class="col-12 col-md-3">
+                  <button type="submit" id="searchCity" class="btn btn-block btn-lg btn-primary">click</button>
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Icons Grid -->
+    <section class="features-icons bg-light text-center">
+      <div class="container">
+          <div class="row">
+              <div class="col-lg-4">
+                  <p th:inline="text">Weather in [[${foreCastWeatherDTO.weatherDTO.cityName}]],[[${foreCastWeatherDTO.weatherDTO.SysDTO.country}]]</p>
+                  <span th:inline="text">[[${foreCastWeatherDTO.weatherDTO.OpenWeatherMapDTO[0].description}]]</span>
+                   <img th:src="@{'http://openweathermap.org/img/w/' +${foreCastWeatherDTO.weatherDTO.OpenWeatherMapDTO[0].icon}+'.png'}" title="TODO" />
+                  <span th:inline="text">[[${foreCastWeatherDTO.weatherDTO.MainWeatherDTO.temp}]] °C </span>
+
+                  <table th:inline="text" class="weather-widget__items text-left">
+                      <tr class="weather-widget__items">
+                          <td>Lowest Temperature</td>
+                          <td>[[${foreCastWeatherDTO.weatherDTO.MainWeatherDTO.temp_min}]]</td>
+                      </tr>
+                      <tr class="weather-widget__items">
+                          <td>Highest Temperature</td>
+                          <td>[[${foreCastWeatherDTO.weatherDTO.MainWeatherDTO.temp_max}]]</td>
+                      </tr>
+                      <tr class="weather-widget__items">
+                          <td>Pressure</td>
+                          <td>[[${foreCastWeatherDTO.weatherDTO.MainWeatherDTO.pressure}]] hpa</td>
+                      </tr>
+                      <tr class="weather-widget__items">
+                          <td>Humidity</td>
+                          <td>[[${foreCastWeatherDTO.weatherDTO.MainWeatherDTO.humidity}]] %</td>
+                      </tr>
+                      <tr class="weather-widget__items">
+                          <td>Sunrise</td>
+                          <td>[[${foreCastWeatherDTO.weatherDTO.SysDTO.sunriseConverting}]]</td>
+                      </tr>
+                      <tr class="weather-widget__items">
+                          <td>Sunset</td>
+                          <td>[[${foreCastWeatherDTO.weatherDTO.SysDTO.sunsetConverting}]]</td>
+                      </tr>
+                  </table>
+              </div>
+              <div class="col-lg-8">
+                  <ul class="tabs text-left">
+                      <li class="tab-link current" data-tab="chart_div">weather</li>
+                      <li class="tab-link" data-tab="map">map</li>
+                  </ul>
+                  <div id="chart_div" class="tab-content current"></div>
+                  <div id="map" class="tab-content"></div>
+              </div>
+          </div>
+      </div>
+    </section>
+    <!-- Footer -->
+    <footer class="footer bg-light">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+            <ul class="list-inline mb-2">
+              <li class="list-inline-item">
+                <a href="#">About</a>
+              </li>
+              <li class="list-inline-item">&sdot;</li>
+              <li class="list-inline-item">
+                <a href="#">Contact</a>
+              </li>
+              <li class="list-inline-item">&sdot;</li>
+              <li class="list-inline-item">
+                <a href="#">Terms of Use</a>
+              </li>
+              <li class="list-inline-item">&sdot;</li>
+              <li class="list-inline-item">
+                <a href="#">Privacy Policy</a>
+              </li>
+            </ul>
+            <p class="text-muted small mb-4 mb-lg-0">&copy; Your Website 2018. All Rights Reserved.</p>
+          </div>
+          <div class="col-lg-6 h-100 text-center text-lg-right my-auto">
+            <ul class="list-inline mb-0">
+              <li class="list-inline-item mr-3">
+                <a href="#">
+                  <i class="fab fa-facebook fa-2x fa-fw"></i>
+                </a>
+              </li>
+              <li class="list-inline-item mr-3">
+                <a href="#">
+                  <i class="fab fa-twitter-square fa-2x fa-fw"></i>
+                </a>
+              </li>
+              <li class="list-inline-item">
+                <a href="#">
+                  <i class="fab fa-instagram fa-2x fa-fw"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </body>
+
+</html>
