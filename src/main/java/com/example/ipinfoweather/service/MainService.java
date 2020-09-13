@@ -1,19 +1,22 @@
 package com.example.ipinfoweather.service;
 
+import com.example.ipinfoweather.client.IpinfoClient;
+import com.example.ipinfoweather.client.OpenWeatherClient;
 import com.example.ipinfoweather.dto.ForeCastWeatherDTO;
 import com.example.ipinfoweather.dto.IpinfoDTO;
 import com.example.ipinfoweather.dto.WeatherDTO;
 import com.example.ipinfoweather.error.ServiceError;
 import com.example.ipinfoweather.error.ServiceException;
 import com.example.ipinfoweather.type.RecommendCity;
+import feign.Feign;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cloud.commons.httpclient.OkHttpClientFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -25,13 +28,13 @@ import java.util.Locale;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MainService {
 
-    @Autowired
-    RestTemplate restTemplate;
+    private final IpinfoClient ipinfoClient;
+    private final OpenWeatherClient openWeatherClient;
 
-    @Value("${Ipinfo.address}")
-    private String IpinfoAddress;
+
 
     @Value("${openWeather.api.uri}")
     private String openWeatherApi;
@@ -44,7 +47,7 @@ public class MainService {
         log.debug("getIplocationWeather");
         ForeCastWeatherDTO result;
         try {
-            IpinfoDTO ipinfoDTO = restTemplate.getForObject(IpinfoAddress,IpinfoDTO.class);
+            IpinfoDTO ipinfoDTO = ipinfoClient.getIpinfo();
             log.info(ipinfoDTO.toString());
             String [] splitLoc = ipinfoDTO.getLoc().split(",");
             log.debug("loc  :  "+splitLoc[0]+","+splitLoc[1]);
@@ -60,32 +63,22 @@ public class MainService {
     }
 
     @Cacheable(value = "055055", key="#cityName")
+
     public ForeCastWeatherDTO getLocationWeather(String lat, String loc, String cityName) throws ServiceException {
         log.debug("getLocationWeather");
         ForeCastWeatherDTO foreCastWeatherDTO;
         WeatherDTO weatherDTO;
         UriComponents uri;
 
+
         if(cityName!=null){
-            uri = UriComponentsBuilder.fromHttpUrl(openWeatherApi)
-                    .queryParam("q", cityName)
-                    .queryParam("units","metric")
-                    .queryParam("appid",openWeatherApiKey)
-                    .build();
+            weatherDTO = openWeatherClient.getCityWeather(cityName,"metric",openWeatherApiKey);
         }else{
-            uri = UriComponentsBuilder.fromHttpUrl(openWeatherApi)
-                    .queryParam("lat",lat)
-                    .queryParam("lon",loc)
-                    .queryParam("units","metric")
-                    .queryParam("appid",openWeatherApiKey)
-                    .build();
+            weatherDTO = openWeatherClient.getLocationWeather(lat,loc,"metric",openWeatherApiKey);
         }
 
         try{
             //i want currentWaether and correct cityName on opweathermapAPI
-            ResponseEntity<WeatherDTO> result = restTemplate.postForEntity(uri.toString(),"",WeatherDTO.class);
-            weatherDTO = result.getBody();
-
             //converting linux time to date
             weatherDTO.getSysDTO().setSunriseConverting(timeConvert(weatherDTO.getSysDTO().getSunrise()));
             weatherDTO.getSysDTO().setSunsetConverting(timeConvert(weatherDTO.getSysDTO().getSunset()));
@@ -117,16 +110,9 @@ public class MainService {
 
     public ForeCastWeatherDTO foreCast(String cityName){
         log.debug("foreCast");
-        UriComponents uri;
 
-            uri = UriComponentsBuilder.fromHttpUrl("http://api.openweathermap.org/data/2.5/forecast")
-                    .queryParam("q", cityName)
-                    .queryParam("units","metric")
-                    .queryParam("appid",openWeatherApiKey)
-                    .build();
             try{
-                ResponseEntity<ForeCastWeatherDTO> result = restTemplate.postForEntity(uri.toString(),"",ForeCastWeatherDTO.class);
-                ForeCastWeatherDTO foreCastWeatherDTO = result.getBody();
+                ForeCastWeatherDTO foreCastWeatherDTO = openWeatherClient.getCityForecast(cityName,"metric",openWeatherApiKey);
                 foreCastWeatherDTO.getForeCastList().stream().forEach(x->x.setConvertDt(timeConvert(x.getDt())));
                 System.out.println(foreCastWeatherDTO);
                 return foreCastWeatherDTO ;
