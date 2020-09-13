@@ -2,6 +2,7 @@ package com.example.ipinfoweather.controller;
 
 import com.example.ipinfoweather.dto.ForeCastWeatherDTO;
 import com.example.ipinfoweather.service.MainService;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Ignore
 @RunWith(SpringRunner.class)
 @WebMvcTest(MainController.class)
 public class privateTest {
@@ -31,14 +33,13 @@ public class privateTest {
         ForeCastWeatherDTO foreCastWeatherDTO = new ForeCastWeatherDTO();
         foreCastWeatherDTO.setCountry("KR");
         String seoulL = "";
-        when(mainService.getLocationWeather(null,null,seoulL)).thenReturn(foreCastWeatherDTO);
+        when(mainService.getLocationWeather(null, null, seoulL)).thenReturn(foreCastWeatherDTO);
         mockMvc.perform(get("/main"))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(view().name("index"));
 
     }
-
 
 
     @Test
