@@ -12,7 +12,6 @@ public class ExceptionHanlder extends ResponseEntityExceptionHandler {
     @ExceptionHandler(ServiceException.class)
     public String ResponseExceptionHandler(ServiceException e, RedirectAttributes redirectAttributes){
         ResultError err = e.getServiceError().getResultError();
-        System.out.println("###"+err);
         redirectAttributes.addFlashAttribute("ErrorMsg",err.getResultMessage());
         return "redirect:/error";
     }

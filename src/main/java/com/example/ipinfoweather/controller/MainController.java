@@ -29,9 +29,7 @@ public class MainController {
         model.addAttribute("foreCastWeatherDTO",foreCastWeatherDTO);
         model.addAttribute("googleMapApiKey",googleMapApiKey);
         model.addAttribute("openWeatherApiKey",openWeatherApiKey);
-/*
-        System.out.println(foreCastWeatherDTO.getClass().getName());
-*/
+
         return "index.html";
     }
 
