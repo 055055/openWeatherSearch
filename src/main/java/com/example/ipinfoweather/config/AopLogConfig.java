@@ -15,10 +15,11 @@ public class AopLogConfig {
 
 
     ///@Around("execution(*com.example.ipinfoweather.*(..))")
-    @Around("execution(* com.example.ipinfoweather.controller..*.*(..))")
+//    @Around("execution(* com.example.ipinfoweather.controller..*.*(..))")
 //    @Around("execution(* com.example.demo.service.MainService.*(..))")
     /*@Around("execution(* com.example.demo.controller..*.*(..))")*/
     /*@Around("execution(* com.example.demo..*.*(..))")*/
+    @Around("execution(* com.example.ipinfoweather.interceptor..*.*(..))")
     public Object controllerLogging(ProceedingJoinPoint pjp) throws Throwable {
         long start = System.currentTimeMillis();
         log.info("############  REQUEST - {}({})={}", pjp.getSignature().getDeclaringTypeName(), pjp.getSignature().getName(), Arrays.toString(pjp.getArgs()));

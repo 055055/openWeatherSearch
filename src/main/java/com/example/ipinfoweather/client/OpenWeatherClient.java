@@ -1,7 +1,6 @@
 package com.example.ipinfoweather.client;
 
 
-import com.example.ipinfoweather.config.FeignConfig;
 import com.example.ipinfoweather.dto.ForeCastWeatherDTO;
 import com.example.ipinfoweather.dto.WeatherDTO;
 import org.springframework.cloud.openfeign.FeignClient;
