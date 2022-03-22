@@ -2,8 +2,9 @@ package com.example.ipinfoweather.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.ToString;
 
-
+@ToString
 @Getter
 public class CityDTO {
     @JsonProperty("id")
@@ -14,13 +15,4 @@ public class CityDTO {
 
     @JsonProperty("coord")
     private CoordDTO coordDTO;
-
-    @Override
-    public String toString() {
-        return "CityDTO{" +
-                "id='" + id + '\'' +
-                ", city='" + city + '\'' +
-                ", coordDTO=" + coordDTO +
-                '}';
-    }
 }

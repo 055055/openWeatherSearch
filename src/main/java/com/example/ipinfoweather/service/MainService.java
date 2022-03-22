@@ -30,11 +30,8 @@ import java.util.Locale;
 @Service
 @RequiredArgsConstructor
 public class MainService {
-
     private final IpinfoClient ipinfoClient;
     private final OpenWeatherClient openWeatherClient;
-
-
 
     @Value("${openWeather.api.uri}")
     private String openWeatherApi;
@@ -63,13 +60,11 @@ public class MainService {
     }
 
     @Cacheable(value = "055055", key="#cityName")
-
     public ForeCastWeatherDTO getLocationWeather(String lat, String loc, String cityName) throws ServiceException {
         log.debug("getLocationWeather");
         ForeCastWeatherDTO foreCastWeatherDTO;
         WeatherDTO weatherDTO;
         UriComponents uri;
-
 
         if(cityName!=null){
             weatherDTO = openWeatherClient.getCityWeather(cityName,"metric",openWeatherApiKey);
@@ -110,7 +105,6 @@ public class MainService {
 
     public ForeCastWeatherDTO foreCast(String cityName){
         log.debug("foreCast");
-
             try{
                 ForeCastWeatherDTO foreCastWeatherDTO = openWeatherClient.getCityForecast(cityName,"metric",openWeatherApiKey);
                 foreCastWeatherDTO.getForeCastList().stream().forEach(x->x.setConvertDt(timeConvert(x.getDt())));
@@ -123,7 +117,5 @@ public class MainService {
                 log.error("{foreCast e}",e);
                 throw new ServiceException(ServiceError.CITY_NOT_FOUND);
             }
-
     }
-
 }

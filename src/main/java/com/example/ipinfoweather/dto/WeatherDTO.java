@@ -3,9 +3,11 @@ package com.example.ipinfoweather.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
+@ToString
 @Getter
 @Setter
 public class WeatherDTO {
@@ -14,11 +16,7 @@ public class WeatherDTO {
 
     @JsonProperty("coord")
     private CoordDTO coordDTO;
-
-    @JsonProperty("dt")
     private Long dt;
-
-    @JsonProperty("convertDt")
     private String convertDt;
 
     @JsonProperty("weather")
@@ -44,22 +42,4 @@ public class WeatherDTO {
 
     @JsonProperty("wind")
     private WindDTO windDTO;
-
-    @Override
-    public String toString() {
-        return "WeatherDTO{" +
-                "mainWeatherDTO=" + mainWeatherDTO +
-                ", coordDTO=" + coordDTO +
-                ", dt='" + dt + '\'' +
-                ", openWeatherMapDTO=" + openWeatherMapDTO +
-                ", sysDTO=" + sysDTO +
-                ", cityId='" + cityId + '\'' +
-                ", cityName='" + cityName + '\'' +
-                ", httpCode='" + httpCode + '\'' +
-                ", rainDTO=" + rainDTO +
-                ", cloudDTO=" + cloudDTO +
-                ", windDTO=" + windDTO +
-                '}';
-    }
-
 }

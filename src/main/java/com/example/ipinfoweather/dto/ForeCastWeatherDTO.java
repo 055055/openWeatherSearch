@@ -4,10 +4,11 @@ import com.example.ipinfoweather.type.RecommendCity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
-import java.util.Arrays;
 import java.util.List;
 
+@ToString
 @Getter
 @Setter
 public class ForeCastWeatherDTO {
@@ -15,10 +16,7 @@ public class ForeCastWeatherDTO {
     @JsonProperty("city")
     private CityDTO cityDTO;
 
-    @JsonProperty("country")
     private String country;
-
-    @JsonProperty("cnt")
     private int cnt;
 
     @JsonProperty("list")
@@ -29,16 +27,4 @@ public class ForeCastWeatherDTO {
 
     @JsonProperty("RecommendCity")
     private RecommendCity[] recommendCities;
-
-    @Override
-    public String toString() {
-        return "ForeCastWeatherDTO{" +
-                "cityDTO=" + cityDTO +
-                ", country='" + country + '\'' +
-                ", cnt=" + cnt +
-                ", foreCastList=" + foreCastList +
-                ", weatherDTO=" + weatherDTO +
-                ", recommendCities=" + Arrays.toString(recommendCities) +
-                '}';
-    }
 }

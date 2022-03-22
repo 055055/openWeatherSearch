@@ -13,13 +13,11 @@ import java.util.UUID;
 public class Interceptor extends HandlerInterceptorAdapter {
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         log.debug("================ START ================  ");
         String traceId = UUID.randomUUID().toString();
         MDC.put("traceId", traceId);
-        log.debug("traceId : "+traceId);
-
-
+        log.debug("traceId : " + traceId);
         return true;
     }
 

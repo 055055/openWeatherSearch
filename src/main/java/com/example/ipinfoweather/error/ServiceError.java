@@ -31,16 +31,11 @@ public enum ServiceError {
     ;
 
        private String message;
-
        public abstract ResultError getResultError();
-
        public String getMessage() {
            return message;
        }
-
        public void setMessage(String message) {
            this.message = message;
        }
-
-
 }

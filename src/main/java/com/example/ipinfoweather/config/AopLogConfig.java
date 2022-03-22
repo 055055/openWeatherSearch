@@ -12,8 +12,6 @@ import java.util.Arrays;
 @Aspect
 @Component
 public class AopLogConfig {
-
-
     ///@Around("execution(*com.example.ipinfoweather.*(..))")
 //    @Around("execution(* com.example.ipinfoweather.controller..*.*(..))")
 //    @Around("execution(* com.example.demo.service.MainService.*(..))")
@@ -38,7 +36,4 @@ public class AopLogConfig {
         log.info("############  RESPONSE SERVICE- {}({})={}({}ms) ", pjp.getSignature().getDeclaringTypeName(), pjp.getSignature().getName(), result, end - start);
         return result;
     }
-
-
-
 }
