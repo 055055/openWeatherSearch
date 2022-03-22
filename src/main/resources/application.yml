@@ -1,0 +1,13 @@
+
+server:
+  servlet:
+    context-path: /weather
+
+router:
+  ip-info:
+    url: https://ipinfo.io
+  open-weather:
+    key: yourkey
+    url: https://api.openweathermap.org/data/2.5/
+  google-map:
+    key: yourkey

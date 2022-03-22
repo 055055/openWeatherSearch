@@ -6,7 +6,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name = "ipinfo-client", url = "${Ipinfo.address}", configuration = FeignConfig.class)
+@FeignClient(name = "ipinfo-client", url = "${router.ip-info.url}", configuration =
+        FeignConfig.class)
 public interface IpinfoClient {
 
     @RequestMapping(method = RequestMethod.GET)

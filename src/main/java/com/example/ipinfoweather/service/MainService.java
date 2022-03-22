@@ -33,10 +33,10 @@ public class MainService {
     private final IpinfoClient ipinfoClient;
     private final OpenWeatherClient openWeatherClient;
 
-    @Value("${openWeather.api.uri}")
+    @Value("${router.open-weather.url}")
     private String openWeatherApi;
 
-    @Value("${openWeather.api.key}")
+    @Value("${router.open-weather.key}")
     private String openWeatherApiKey;
 
 

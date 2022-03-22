@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "openWeather-client", url = "${openWeather.api.uri}")
+@FeignClient(name = "openWeather-client", url = "${router.open-weather.url}")
 public interface OpenWeatherClient {
 
     @RequestMapping(method = RequestMethod.POST, value = "//weather")

@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Slf4j
 @Controller
 public class MainController {
-    @Value("${googleMap.api.key}")
+    @Value("${router.google-map.key}")
     private String googleMapApiKey;
 
-    @Value("${openWeather.api.key}")
+    @Value("${router.open-weather.key}")
     private String openWeatherApiKey;
 
     @Autowired
