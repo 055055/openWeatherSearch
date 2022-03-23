@@ -28,4 +28,10 @@ public interface OpenWeatherClient {
             @RequestParam("q") String cityName, @RequestParam("units") String units,
             @RequestParam("appid") String appid
     );
+
+    @RequestMapping(method = RequestMethod.POST, value = "/forecast")
+    ForeCastWeatherDTO getLocationForecast(
+            @RequestParam("lat") String lat, @RequestParam("lon") String lon,
+            @RequestParam("units") String units, @RequestParam("appid") String appid
+    );
 }

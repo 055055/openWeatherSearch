@@ -16,6 +16,7 @@ public class WeatherDTO {
 
     @JsonProperty("coord")
     private CoordDTO coordDTO;
+
     private Long dt;
     private String convertDt;
 
@@ -25,21 +26,6 @@ public class WeatherDTO {
     @JsonProperty("sys")
     private SysDTO sysDTO;
 
-    @JsonProperty("id")
-    private String cityId;
-
     @JsonProperty("name")
     private String cityName;
-
-    @JsonProperty("cod")
-    private String httpCode;
-
-    @JsonProperty("rain")
-    private RainDTO rainDTO;
-
-    @JsonProperty("clouds")
-    private CloudDTO cloudDTO;
-
-    @JsonProperty("wind")
-    private WindDTO windDTO;
 }

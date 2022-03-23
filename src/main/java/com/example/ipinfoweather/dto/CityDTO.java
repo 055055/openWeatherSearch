@@ -12,7 +12,4 @@ public class CityDTO {
 
     @JsonProperty("name")
     private String city;
-
-    @JsonProperty("coord")
-    private CoordDTO coordDTO;
 }

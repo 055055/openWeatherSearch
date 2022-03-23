@@ -1,6 +1,6 @@
 package com.example.ipinfoweather.service;
 
-import com.example.ipinfoweather.dto.IpinfoDTO;
+import com.example.ipinfoweather.dto.IpInfoDto;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,16 +16,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class MainServiceTest {
-    @Value("${Ipinfo.address}")
-    private String IpinfoAddress;
-
-    @Autowired
-    RestTemplate restTemplate;
-
-    @Test
-    public void getIplocationWeatherTest(){
-       IpinfoDTO ipinfoDTO = restTemplate.getForObject(IpinfoAddress,IpinfoDTO.class);
-        System.out.println(ipinfoDTO.toString());
-        assertThat(ipinfoDTO.getCountry()).isEqualTo("KR");
-    }
+//    @Value("${Ipinfo.address}")
+//    private String IpinfoAddress;
+//
+//    @Autowired
+//    RestTemplate restTemplate;
+//
+//    @Test
+//    public void getIplocationWeatherTest(){
+//       IpInfoDto ipinfoDTO = restTemplate.getForObject(IpinfoAddress, IpInfoDto.class);
+//        System.out.println(ipinfoDTO.toString());
+//        assertThat(ipinfoDTO.getCountry()).isEqualTo("KR");
+//    }
 }
