@@ -11,11 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -26,64 +26,80 @@ public class MainService {
 
     @Value("${router.open-weather.url}")
     private String openWeatherApi;
-
     @Value("${router.open-weather.key}")
     private String openWeatherApiKey;
+
+    private final static String WEATHER_INFO_UNITS = "metric";
+
 
     public ForeCastWeatherDTO getWeatherByIpAddress() {
         return getWeatherByLocation(ipinfoClient.getIpInfo());
     }
 
     public ForeCastWeatherDTO getWeatherByCityName(String cityName) {
-        WeatherDTO weatherDTO = openWeatherClient.getCityWeather(cityName, "metric", openWeatherApiKey);
-
-        weatherDTO.getSysDTO().setSunriseConverting(timeConvert(weatherDTO.getSysDTO().getSunrise()));
-        weatherDTO.getSysDTO().setSunsetConverting(timeConvert(weatherDTO.getSysDTO().getSunset()));
-        weatherDTO.setConvertDt(timeConvert(weatherDTO.getDt()));
-        log.debug(weatherDTO.toString());
-
-        ForeCastWeatherDTO foreCastWeatherDTO = openWeatherClient.getCityForecast(
-                cityName,
-                "metric", openWeatherApiKey
-        );
-
-        foreCastWeatherDTO.setWeatherDTO(weatherDTO);
-        foreCastWeatherDTO.setRecommendCities(RecommendCity.values());
-
-        return foreCastWeatherDTO;
+        try {
+            return CompletableFuture.supplyAsync(() ->
+                            openWeatherClient.getCityWeather(cityName, WEATHER_INFO_UNITS, openWeatherApiKey)
+                    ).thenApplyAsync(this::convertWeatherDateTime)
+                    .thenCombine(
+                            CompletableFuture.supplyAsync(() ->
+                                    openWeatherClient.getCityForecast(
+                                            cityName,
+                                            WEATHER_INFO_UNITS, openWeatherApiKey
+                                    )
+                            ), (weatherDTO, foreCastWeatherDTO) -> {
+                                foreCastWeatherDTO.setWeatherDTO(weatherDTO);
+                                foreCastWeatherDTO.setRecommendCities(RecommendCity.values());
+                                return foreCastWeatherDTO;
+                            }
+                    ).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
     }
 
     public ForeCastWeatherDTO getWeatherByLocation(IpInfoDto ipInfoDto) {
 
-        WeatherDTO weatherDTO = openWeatherClient.getLocationWeather(
-                ipInfoDto.getLatitude(),
-                ipInfoDto.getLongitude(),
-                "metric", openWeatherApiKey
-        );
+        try {
+            return CompletableFuture.supplyAsync(() ->
+                            openWeatherClient.getLocationWeather(
+                                    ipInfoDto.getLatitude(),
+                                    ipInfoDto.getLongitude(),
+                                    WEATHER_INFO_UNITS, openWeatherApiKey
+                            )
 
+                    ).thenApplyAsync(this::convertWeatherDateTime)
+                    .thenCombine(
+                            CompletableFuture.supplyAsync(() ->
+                                    openWeatherClient.getLocationForecast(
+                                            ipInfoDto.getLatitude(),
+                                            ipInfoDto.getLongitude(),
+                                            WEATHER_INFO_UNITS, openWeatherApiKey
+                                    )
+                            ), (weatherDto, forecastWeatherDto) -> {
+                                forecastWeatherDto.setWeatherDTO(weatherDto);
+                                forecastWeatherDto.setRecommendCities(RecommendCity.values());
+                                return forecastWeatherDto;
+                            }
+                    ).get();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
+    }
+
+    private WeatherDTO convertWeatherDateTime(WeatherDTO weatherDTO) {
         weatherDTO.getSysDTO().setSunriseConverting(timeConvert(weatherDTO.getSysDTO().getSunrise()));
         weatherDTO.getSysDTO().setSunsetConverting(timeConvert(weatherDTO.getSysDTO().getSunset()));
         weatherDTO.setConvertDt(timeConvert(weatherDTO.getDt()));
         log.debug(weatherDTO.toString());
-
-        ForeCastWeatherDTO foreCastWeatherDTO = openWeatherClient.getLocationForecast(
-                ipInfoDto.getLatitude(),
-                ipInfoDto.getLongitude(),
-                "metric", openWeatherApiKey
-        );
-
-
-        foreCastWeatherDTO.setWeatherDTO(weatherDTO);
-        foreCastWeatherDTO.setRecommendCities(RecommendCity.values());
-
-        return foreCastWeatherDTO;
+        return weatherDTO;
     }
 
-    public String timeConvert(Long sunTime) {
-        //unix time to date type
-        Date date = Date.from(Instant.ofEpochSecond(sunTime));
-        SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm", Locale.KOREA);
-        String formattedDate = sdf.format(date);
-        return formattedDate;
+    public String timeConvert(Long timestamp) {
+        return LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp),
+                        TimeZone.getDefault().toZoneId())
+                .format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 }

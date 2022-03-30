@@ -10,6 +10,8 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.concurrent.ExecutionException;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -24,7 +26,7 @@ public class MainController {
 
 
     @GetMapping("/main")
-    public String main(ModelMap model) {
+    public String main(ModelMap model) throws ExecutionException, InterruptedException {
         ForeCastWeatherDTO foreCastWeatherDTO = mainService.getWeatherByIpAddress();
 
         model.addAttribute("foreCastWeatherDTO", foreCastWeatherDTO);
